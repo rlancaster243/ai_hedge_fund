@@ -1,9 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { neon } from "@neondatabase/serverless"
 
-const sql = neon(process.env.DATABASE_URL!)
-
 export async function POST(request: NextRequest) {
+  const sql = neon(process.env.DATABASE_URL!)
   try {
     const body = await request.json()
     const { name, strategyCode, startDate, endDate, initialCapital, symbols } = body
