@@ -1,39 +1,42 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { neon } from "@neondatabase/serverless"
+// import { neon } from "@neondatabase/serverless" // Removed PostgreSQL dependency
 
 export async function POST(request: NextRequest) {
-  const sql = neon(process.env.DATABASE_URL!)
+  // const sql = neon(process.env.DATABASE_URL!) // Removed PostgreSQL initialization
   try {
     const body = await request.json()
     const { name, strategyCode, startDate, endDate, initialCapital, symbols } = body
 
-    // Get demo user
-    const users = await sql`SELECT id FROM users WHERE email = 'demo@hedgefund.ai' LIMIT 1`
-    const userId = users[0]?.id
+    // Get demo user - Placeholder for MongoDB integration
+    // const users = await sql`SELECT id FROM users WHERE email = 'demo@hedgefund.ai' LIMIT 1`
+    // const userId = users[0]?.id
+    const userId = "mockUserId"; // Placeholder
 
-    if (!userId) {
-      return NextResponse.json({ error: "User not found" }, { status: 400 })
-    }
+    // if (!userId) {
+    //   return NextResponse.json({ error: "User not found" }, { status: 400 })
+    // }
 
-    // Create strategy in database
-    const strategy = await sql`
-      INSERT INTO trading_strategies (user_id, name, description, strategy_code)
-      VALUES (${userId}, ${name}, ${"Backtrader strategy"}, ${strategyCode})
-      RETURNING *
-    `
+    // Create strategy in database - Placeholder for MongoDB integration
+    // const strategy = await sql`
+    //   INSERT INTO trading_strategies (user_id, name, description, strategy_code)
+    //   VALUES (${userId}, ${name}, ${"Backtrader strategy"}, ${strategyCode})
+    //   RETURNING *
+    // `
+    const strategy = [{ id: "mockStrategyId" }]; // Placeholder
 
-    // Create backtest record
-    const backtest = await sql`
-      INSERT INTO backtests (
-        user_id, strategy_id, name, start_date, end_date, initial_capital, status
-      ) VALUES (
-        ${userId}, ${strategy[0].id}, ${name}, ${startDate}, ${endDate}, ${initialCapital}, 'running'
-      ) RETURNING *
-    `
+    // Create backtest record - Placeholder for MongoDB integration
+    // const backtest = await sql`
+    //   INSERT INTO backtests (
+    //     user_id, strategy_id, name, start_date, end_date, initial_capital, status
+    //   ) VALUES (
+    //     ${userId}, ${strategy[0].id}, ${name}, ${startDate}, ${endDate}, ${initialCapital}, 'running'
+    //   ) RETURNING *
+    // `
+    const backtest = [{ id: "mockBacktestId" }]; // Placeholder
 
     // Run the backtest using Python subprocess
     const backtestResult = await runBacktraderBacktest({
-      backtestId: backtest[0].id,
+      backtestId: backtest[0].id, // Uses placeholder backtestId
       strategyCode,
       startDate,
       endDate,
@@ -41,25 +44,25 @@ export async function POST(request: NextRequest) {
       symbols: symbols || ["AAPL"],
     })
 
-    // Update backtest with results
-    await sql`
-      UPDATE backtests 
-      SET 
-        final_value = ${backtestResult.final_value},
-        total_return = ${backtestResult.total_return},
-        sharpe_ratio = ${backtestResult.sharpe_ratio},
-        max_drawdown = ${backtestResult.max_drawdown},
-        win_rate = ${backtestResult.win_rate},
-        total_trades = ${backtestResult.total_trades},
-        results = ${JSON.stringify(backtestResult)},
-        status = 'completed',
-        completed_at = NOW()
-      WHERE id = ${backtest[0].id}
-    `
+    // Update backtest with results - Placeholder for MongoDB integration
+    // await sql`
+    //   UPDATE backtests 
+    //   SET 
+    //     final_value = ${backtestResult.final_value},
+    //     total_return = ${backtestResult.total_return},
+    //     sharpe_ratio = ${backtestResult.sharpe_ratio},
+    //     max_drawdown = ${backtestResult.max_drawdown},
+    //     win_rate = ${backtestResult.win_rate},
+    //     total_trades = ${backtestResult.total_trades},
+    //     results = ${JSON.stringify(backtestResult)},
+    //     status = 'completed',
+    //     completed_at = NOW()
+    //   WHERE id = ${backtest[0].id}
+    // `
 
     return NextResponse.json({
       success: true,
-      backtest: backtest[0],
+      backtest: backtest[0], // Uses placeholder backtest data
       results: backtestResult,
     })
   } catch (error) {
